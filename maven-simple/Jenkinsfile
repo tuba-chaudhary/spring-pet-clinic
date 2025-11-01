@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JAVA_HOME'
+        maven 'MAVEN_HOME'
+    }
+
+    environment {
+        WAR_FILE = "target/hello-tomcat-advanced.war"
+        TOMCAT_URL = "http://localhost:8070"
+        TOMCAT_USER = "tomcatuser"
+        TOMCAT_PASSWORD = "yourpassword"
+    }
+
+    stages {
+        stage('Clean') {
+            steps {
+                dir('spring-pet-clinic') {
+                    bat 'mvn clean'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('spring-pet-clinic') {
+                    bat 'mvn package'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                dir('spring-pet-clinic') {
+                    bat """
+                        curl -u "${TOMCAT_USER}:${TOMCAT_PASSWORD}" ^
+                        --upload-file "${WAR_FILE}" ^
+                        "${TOMCAT_URL}/manager/text/deploy?path=/hello-tomcat-advanced&update=true"
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
+}
