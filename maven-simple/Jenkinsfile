@@ -1,11 +1,9 @@
 pipeline {
     agent any
-
     tools {
         jdk 'JDK21'
         maven 'Maven3'
     }
-
     environment {
         WAR_FILE = "target/hello-tomcat-advanced.war"
         TOMCAT_URL = "http://localhost:8070"
@@ -16,39 +14,29 @@ pipeline {
     stages {
         stage('Clean') {
             steps {
-                dir('maven-simple') {
-                    bat 'mvn clean'
-                }
+                bat 'mvn clean'
             }
         }
 
         stage('Build') {
             steps {
-                dir('maven-simple') {
-                    bat 'mvn package'
-                }
+                bat 'mvn package'
             }
         }
 
         stage('Deploy') {
             steps {
-                dir('maven-simple') {
-                    bat """
-                        curl -u "${TOMCAT_USER}:${TOMCAT_PASSWORD}" ^
-                        --upload-file "${WAR_FILE}" ^
-                        "${TOMCAT_URL}/manager/text/deploy?path=/hello-tomcat-advanced&update=true"
-                    """
-                }
+                bat """
+                    curl -u "${TOMCAT_USER}:${TOMCAT_PASSWORD}" ^
+                    --upload-file "${WAR_FILE}" ^
+                    "${TOMCAT_URL}/manager/text/deploy?path=/hello-tomcat-advanced&update=true"
+                """
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Deployment successful!'
-        }
-        failure {
-            echo '❌ Deployment failed!'
-        }
+        success { echo '✅ Deployment successful!' }
+        failure { echo '❌ Deployment failed!' }
     }
 }
