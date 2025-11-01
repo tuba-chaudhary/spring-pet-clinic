@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Clean') {
             steps {
-                dir('spring-pet-clinic') {
+                dir('maven-simple') {
                     bat 'mvn clean'
                 }
             }
@@ -24,7 +24,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir('spring-pet-clinic') {
+                dir('maven-simple') {
                     bat 'mvn package'
                 }
             }
@@ -32,7 +32,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                dir('spring-pet-clinic') {
+                dir('maven-simple') {
                     bat """
                         curl -u "${TOMCAT_USER}:${TOMCAT_PASSWORD}" ^
                         --upload-file "${WAR_FILE}" ^
@@ -45,10 +45,10 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment successful!'
+            echo '✅ Deployment successful!'
         }
         failure {
-            echo 'Deployment failed!'
+            echo '❌ Deployment failed!'
         }
     }
 }
